@@ -238,7 +238,51 @@ function discardAndReturn() {
 function goHome() {
     currentTask = null;
     showScreen("screen-home");
-    renderHistory();
+    renderBestScores();
+renderHistory();
+}
+
+// ─── Best Scores ────────────────────────────────────────────────────────────
+function renderBestScores() {
+    const sessions = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const section = document.getElementById("best-scores-section");
+    const grid = document.getElementById("best-scores-grid");
+    const taskTypes = ["addition", "oddeven", "stroop"];
+    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop" };
+    const taskIcons = { addition: "➕", oddeven: "🔢", stroop: "🎨" };
+
+    const bests = {};
+    for (const type of taskTypes) {
+        const typeSessions = sessions.filter(s => s.task === type && s.total > 0);
+        if (typeSessions.length === 0) continue;
+        // Best = highest accuracy, then lowest avgMs as tiebreaker
+        typeSessions.sort((a, b) => b.accuracy - a.accuracy || a.avgMs - b.avgMs);
+        bests[type] = typeSessions[0];
+    }
+
+    if (Object.keys(bests).length === 0) {
+        section.style.display = "none";
+        return;
+    }
+
+    section.style.display = "block";
+    grid.innerHTML = taskTypes.filter(t => bests[t]).map(t => {
+        const s = bests[t];
+        const d = new Date(s.date);
+        const dateStr = d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+        const timeStr = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+        return `<div class="best-card best-card-${t}">
+            <div class="best-card-icon">${taskIcons[t]}</div>
+            <div class="best-card-info">
+                <div class="best-card-title">${taskLabels[t]}</div>
+                <div class="best-card-date">${dateStr} at ${timeStr}</div>
+            </div>
+            <div class="best-card-stats">
+                <div class="best-card-accuracy">${s.accuracy}%</div>
+                <div class="best-card-time">${s.correct}/${s.total} · ${s.avgMs}ms</div>
+            </div>
+        </div>`;
+    }).join("");
 }
 
 // ─── History ────────────────────────────────────────────────────────────────
@@ -287,7 +331,8 @@ function renderHistory() {
 function clearHistory() {
     if (!confirm("Clear all session history?")) return;
     localStorage.removeItem(STORAGE_KEY);
-    renderHistory();
+    renderBestScores();
+renderHistory();
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -296,4 +341,5 @@ function randInt(min, max) {
 }
 
 // ─── Init ───────────────────────────────────────────────────────────────────
+renderBestScores();
 renderHistory();
