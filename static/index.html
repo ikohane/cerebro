@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebro — Brain Speed Check</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- HOME SCREEN -->
+    <div id="screen-home" class="screen active">
+        <header>
+            <h1>Cerebro</h1>
+            <p class="subtitle">60-Second Brain Speed Check</p>
+        </header>
+
+        <div class="task-cards">
+            <button class="task-card card-addition" onclick="startTask('addition')">
+                <span class="card-icon">➕</span>
+                <span class="card-title">Addition</span>
+                <span class="card-desc">Add two double-digit numbers</span>
+            </button>
+            <button class="task-card card-oddeven" onclick="startTask('oddeven')">
+                <span class="card-icon">🔢</span>
+                <span class="card-title">Odd / Even</span>
+                <span class="card-desc">Classify numbers as odd or even</span>
+            </button>
+            <button class="task-card card-stroop" onclick="startTask('stroop')">
+                <span class="card-icon">🎨</span>
+                <span class="card-title">Stroop</span>
+                <span class="card-desc">Name the display color, not the word</span>
+            </button>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h2>Session History</h2>
+                <button id="btn-clear-history" class="btn-small btn-danger" onclick="clearHistory()">Clear</button>
+            </div>
+            <div id="history-table-wrap">
+                <p class="empty-state">No sessions yet. Pick a task above to start!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COUNTDOWN SCREEN -->
+    <div id="screen-countdown" class="screen">
+        <div class="countdown-number" id="countdown-display">3</div>
+    </div>
+
+    <!-- TASK SCREEN -->
+    <div id="screen-task" class="screen">
+        <div class="task-topbar">
+            <div class="task-timer">
+                <div class="timer-bar" id="timer-bar"></div>
+                <span class="timer-text" id="timer-text">60s</span>
+            </div>
+            <div class="task-score" id="task-score">0 / 0</div>
+        </div>
+
+        <div class="task-area" id="task-area">
+            <!-- Dynamic task content goes here -->
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="screen-results" class="screen">
+        <h2>Results</h2>
+        <div class="results-card" id="results-card">
+            <!-- Filled dynamically -->
+        </div>
+        <div class="results-actions">
+            <button class="btn btn-primary" onclick="saveAndReturn()">Save & Return</button>
+            <button class="btn btn-secondary" onclick="discardAndReturn()">Discard</button>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
