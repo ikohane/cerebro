@@ -11,6 +11,10 @@ let currentAnswer = null;
 let correct = 0;
 let total = 0;
 
+// Sequence recall
+let sequenceLength = 4;   // starting length, grows on correct answers
+let sequenceTarget = [];   // the digits to remember
+
 // Stroop colours
 const STROOP_COLORS = [
     { name: "Red",    hex: "#e74c3c" },
@@ -31,6 +35,7 @@ function startTask(type) {
     trials = [];
     correct = 0;
     total = 0;
+    sequenceLength = 4; // reset for sequence recall
     showScreen("screen-countdown");
     runCountdown(3);
 }
@@ -130,6 +135,75 @@ function showProblem() {
                 `).join("")}
             </div>
         `;
+
+    } else if (currentTask === "sequence") {
+        // Generate a sequence of digits
+        sequenceTarget = [];
+        for (let i = 0; i < sequenceLength; i++) {
+            sequenceTarget.push(randInt(0, 9));
+        }
+        currentAnswer = sequenceTarget.join("");
+        showSequenceFlash(area);
+    }
+}
+
+// ─── Sequence Recall: flash digits one-by-one then prompt ───────────────────
+function showSequenceFlash(area) {
+    const flashMs = 600;  // time each digit is shown
+    const gapMs = 150;    // gap between digits
+    let i = 0;
+
+    area.innerHTML = `
+        <div class="sequence-length-label">${sequenceLength} digits</div>
+        <div class="sequence-flash" id="seq-flash"></div>
+        <div class="sequence-hint">Watch carefully…</div>
+    `;
+    const flashEl = document.getElementById("seq-flash");
+
+    function showNext() {
+        if (i >= sequenceTarget.length) {
+            // Done flashing — show input
+            trialStart = performance.now();  // start timing after flash
+            area.innerHTML = `
+                <div class="sequence-length-label">${sequenceLength} digits</div>
+                <div class="sequence-prompt">Type the sequence</div>
+                <input type="text" class="answer-input sequence-input" id="seq-input"
+                       inputmode="numeric" autocomplete="off" maxlength="${sequenceLength}"
+                       placeholder="${"·".repeat(sequenceLength)}">
+                <div class="submit-hint">Press Enter to submit</div>
+            `;
+            const input = document.getElementById("seq-input");
+            input.focus();
+            input.addEventListener("keydown", handleSequenceKey);
+            return;
+        }
+
+        flashEl.textContent = sequenceTarget[i];
+        flashEl.style.opacity = "1";
+
+        setTimeout(() => {
+            flashEl.style.opacity = "0";
+            i++;
+            setTimeout(showNext, gapMs);
+        }, flashMs);
+    }
+
+    showNext();
+}
+
+function handleSequenceKey(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        const val = document.getElementById("seq-input").value.trim();
+        if (val.length === 0) return;
+        const isCorrect = val === currentAnswer;
+        // Adaptive length: grow on correct, shrink on wrong (min 3)
+        if (isCorrect) {
+            sequenceLength = Math.min(sequenceLength + 1, 12);
+        } else {
+            sequenceLength = Math.max(sequenceLength - 1, 3);
+        }
+        recordTrial(isCorrect);
     }
 }
 
@@ -186,7 +260,7 @@ function showResults() {
         ? Math.round(trials.reduce((s, t) => s + t.responseMs, 0) / trials.length)
         : 0;
 
-    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop" };
+    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop", sequence: "Sequence" };
 
     document.getElementById("results-card").innerHTML = `
         <div class="result-row">
@@ -247,9 +321,9 @@ function renderBestScores() {
     const sessions = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const section = document.getElementById("best-scores-section");
     const grid = document.getElementById("best-scores-grid");
-    const taskTypes = ["addition", "oddeven", "stroop"];
-    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop" };
-    const taskIcons = { addition: "➕", oddeven: "🔢", stroop: "🎨" };
+    const taskTypes = ["addition", "oddeven", "stroop", "sequence"];
+    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop", sequence: "Sequence" };
+    const taskIcons = { addition: "➕", oddeven: "🔢", stroop: "🎨", sequence: "🧠" };
 
     const bests = {};
     for (const type of taskTypes) {
@@ -299,7 +373,7 @@ function renderHistory() {
 
     clearBtn.style.display = "inline-block";
 
-    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop" };
+    const taskLabels = { addition: "Addition", oddeven: "Odd / Even", stroop: "Stroop", sequence: "Sequence" };
 
     const rows = sessions.map(s => {
         const d = new Date(s.date);

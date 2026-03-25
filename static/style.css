@@ -83,6 +83,7 @@ header h1 {
 .card-addition .card-icon { background: #e8f5e9; }
 .card-oddeven .card-icon { background: #e3f2fd; }
 .card-stroop .card-icon { background: #fce4ec; }
+.card-sequence .card-icon { background: #fff3e0; }
 
 .card-title {
     font-size: 1.05rem;
@@ -140,6 +141,7 @@ header h1 {
 .best-card-addition .best-card-icon { background: #e8f5e9; }
 .best-card-oddeven .best-card-icon { background: #e3f2fd; }
 .best-card-stroop .best-card-icon { background: #fce4ec; }
+.best-card-sequence .best-card-icon { background: #fff3e0; }
 
 .best-card-info {
     flex: 1;
@@ -260,6 +262,7 @@ table.history tr:hover td {
 .badge-addition { background: #e8f5e9; color: #2e7d32; }
 .badge-oddeven { background: #e3f2fd; color: #1565c0; }
 .badge-stroop { background: #fce4ec; color: #c62828; }
+.badge-sequence { background: #fff3e0; color: #e65100; }
 
 /* --- COUNTDOWN --- */
 
@@ -545,6 +548,47 @@ table.history tr:hover td {
 .btn-secondary {
     background: #ecf0f1;
     color: #555;
+}
+
+/* Sequence Recall task */
+.sequence-flash {
+    font-size: 5rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.1s;
+    letter-spacing: 4px;
+}
+
+.sequence-hint {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+}
+
+.sequence-prompt {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: -8px;
+}
+
+.sequence-length-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #e65100;
+    background: #fff3e0;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: -8px;
+}
+
+.sequence-input {
+    letter-spacing: 6px;
+    width: 220px !important;
 }
 
 /* --- RESPONSIVE --- */
